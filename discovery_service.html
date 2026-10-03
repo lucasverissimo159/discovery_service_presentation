@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Service Discovery - Apresentação</title>
+  <style>
+    :root{
+      --font-size:28px;
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --accent1: #3b82f6;
+      --accent2: #8b5cf6;
+      --accent3: #10b981;
+      --accent4: #f59e0b;
+      --accent5: #ef4444;
+      --muted: #94a3b8;
+      --card: #1e293b;
+      --card-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      height:100%; 
+      margin:0; 
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      background:var(--bg); 
+      color:var(--text);
+      overflow:hidden;
+    }
+    
+    .slide{
+      display:none; 
+      padding:48px; 
+      width:100vw; 
+      height:100vh; 
+      font-size:var(--font-size);
+      position:relative;
+      overflow:auto;
+    }
+    .slide.active{display:block}
+    
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+      animation: pulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.15; }
+      50% { transform: scale(1.1); opacity: 0.25; }
+    }
+    
+    header{
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      margin-bottom:24px;
+      position:relative;
+      z-index:2;
+    }
+    
+    .title{
+      font-weight:700; 
+      font-size:calc(var(--font-size) * 1); 
+      color:var(--accent1);
+      text-shadow: 0 0 20px rgba(59,130,246,0.5);
+    }
+    
+    .content{
+      background:var(--card); 
+      border-radius:24px; 
+      padding:40px; 
+      box-shadow:var(--card-shadow); 
+      height:calc(100% - 110px); 
+      overflow:auto;
+      position:relative;
+      z-index:2;
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+    
+    h1,h2{margin:0 0 20px 0; color:var(--accent1)}
+    h1{font-size:calc(var(--font-size) * 1.4); text-shadow: 0 0 20px rgba(59,130,246,0.3);}
+    
+    ul{margin:12px 0 0 24px; padding:0; list-style:none}
+    li{
+      margin-bottom:16px; 
+      line-height:1.5;
+      padding-left:8px;
+      border-left:4px solid var(--accent3);
+      background:rgba(16,185,129,0.1);
+      padding:16px 16px 16px 24px;
+      border-radius:12px;
+      position:relative;
+    }
+    
+    li::before{
+      content: '▸';
+      position:absolute;
+      left:8px;
+      color:var(--accent3);
+      font-weight:bold;
+    }
+    
+    .pager{
+      position:fixed; 
+      right:24px; 
+      bottom:18px; 
+      color:white; 
+      font-size:calc(var(--font-size) * 0.65);
+      background:rgba(59,130,246,0.3);
+      padding:10px 20px;
+      border-radius:20px;
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(59,130,246,0.3);
+    }
+
+    .two-column{display:flex; gap:32px}
+    .col{flex:1}
+    
+    .main-title{
+      font-size:calc(var(--font-size) * 2.2);
+      color:var(--accent1);
+      text-align:center;
+      margin-bottom:20px;
+      text-shadow:0 0 30px rgba(59,130,246,0.6);
+      animation: glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 30px rgba(59,130,246,0.6); }
+      50% { text-shadow: 0 0 50px rgba(59,130,246,0.8), 0 0 70px rgba(139,92,246,0.4); }
+    }
+    
+    .subtitle-desc{
+      text-align:center;
+      color:var(--muted);
+      font-size:calc(var(--font-size) * 0.9);
+      margin-bottom:50px;
+      font-style:italic;
+      font-weight:400;
+    }
+    
+    .team-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:24px;
+      margin-top:30px;
+    }
+    
+    .team-card{
+      background:linear-gradient(145deg, var(--accent1), var(--accent2));
+      color:white;
+      padding:24px;
+      border-radius:16px;
+      text-align:center;
+      box-shadow:0 10px 30px rgba(59,130,246,0.4);
+      transition: transform 0.3s ease;
+    }
+    
+    .team-card:hover{
+      transform:translateY(-5px) scale(1.02);
+    }
+    
+    canvas{
+      background:var(--card); 
+      border:3px solid var(--accent1); 
+      border-radius:16px;
+      box-shadow:0 15px 40px rgba(59,130,246,0.3);
+      display:block;
+      margin:0 auto;
+    }
+
+    .demo-panel{
+      display:flex; 
+      gap:24px; 
+      align-items:flex-start;
+      margin-top:20px;
+    }
+    
+    .controls{
+      min-width:320px; 
+      background:rgba(30,41,59,0.8); 
+      border-radius:16px; 
+      padding:24px; 
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      border:2px solid rgba(59,130,246,0.3);
+      backdrop-filter:blur(10px);
+    }
+    
+    label{
+      display:block; 
+      font-size:calc(var(--font-size) * 0.6); 
+      color:var(--accent1); 
+      margin-bottom:8px;
+      font-weight:600;
+    }
+    
+    button{
+      background:linear-gradient(145deg, var(--accent1), var(--accent2)); 
+      color:white; 
+      border:0; 
+      padding:14px 22px; 
+      border-radius:12px; 
+      font-size:calc(var(--font-size) * 0.55); 
+      cursor:pointer;
+      box-shadow:0 5px 15px rgba(59,130,246,0.4);
+      transition:all 0.3s ease;
+      font-weight:600;
+    }
+    
+    button:hover{
+      transform:translateY(-2px); 
+      box-shadow:0 7px 25px rgba(59,130,246,0.6);
+    }
+    
+    button.active{
+      background:linear-gradient(145deg, var(--accent3), var(--accent1));
+      box-shadow:0 5px 20px rgba(16,185,129,0.5);
+    }
+    
+    input[type=range]{
+      width:100%; 
+      height:8px; 
+      border-radius:4px; 
+      background:linear-gradient(to right, var(--accent1), var(--accent2));
+      outline:none;
+      -webkit-appearance:none;
+    }
+    
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:var(--accent3);
+      cursor:pointer;
+      box-shadow:0 0 10px rgba(16,185,129,0.5);
+    }
+
+    .note{
+      font-size:calc(var(--font-size) * 0.55); 
+      color:var(--muted);
+      background:rgba(59,130,246,0.1);
+      padding:14px;
+      border-radius:10px;
+      border-left:4px solid var(--accent1);
+      margin-top:12px;
+    }
+    
+    .service-node{
+      display:inline-block;
+      padding:8px 16px;
+      background:var(--accent1);
+      color:white;
+      border-radius:8px;
+      margin:5px;
+      font-size:calc(var(--font-size) * 0.6);
+      box-shadow:0 4px 12px rgba(59,130,246,0.3);
+    }
+    
+    .registry-node{
+      display:inline-block;
+      padding:12px 20px;
+      background:var(--accent3);
+      color:white;
+      border-radius:12px;
+      margin:5px;
+      font-size:calc(var(--font-size) * 0.7);
+      box-shadow:0 5px 15px rgba(16,185,129,0.4);
+      font-weight:bold;
+    }
+    
+    .comparison-table{
+      width:100%;
+      margin-top:20px;
+      border-collapse:separate;
+      border-spacing:0 10px;
+    }
+    
+    .comparison-table th{
+      background:var(--accent1);
+      color:white;
+      padding:14px;
+      text-align:left;
+      font-size:calc(var(--font-size) * 0.65);
+      border-radius:8px;
+    }
+    
+    .comparison-table td{
+      background:rgba(30,41,59,0.6);
+      padding:12px 14px;
+      font-size:calc(var(--font-size) * 0.6);
+      border-left:3px solid var(--accent3);
+    }
+    
+    .comparison-table tr:hover td{
+      background:rgba(59,130,246,0.15);
+    }
+    
+    .example-card{
+      background:rgba(30,41,59,0.8);
+      border-radius:12px;
+      padding:20px;
+      margin:15px 0;
+      border-left:4px solid var(--accent4);
+      box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .example-card h3{
+      color:var(--accent4);
+      margin:0 0 10px 0;
+      font-size:calc(var(--font-size) * 0.75);
+    }
+    
+    .example-card p{
+      margin:5px 0;
+      font-size:calc(var(--font-size) * 0.6);
+      line-height:1.5;
+    }
+    
+    .advantage{
+      background:linear-gradient(145deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+      border-left:6px solid var(--accent3);
+    }
+    
+    .limitation{
+      background:linear-gradient(145deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
+      border-left:6px solid var(--accent5);
+    }
+    
+    .icon{
+      font-size:24px;
+      margin-right:8px;
+      vertical-align:middle;
+    }
+    
+    .status-indicator{
+      display:inline-block;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      margin-right:8px;
+      animation:blink 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes blink{
+      0%, 100%{opacity:1}
+      50%{opacity:0.3}
+    }
+    
+    .status-healthy{background:var(--accent3)}
+    .status-unhealthy{background:var(--accent5)}
+    .status-registering{background:var(--accent4)}
+  </style>
+</head>
+<body>
+  <!-- Slide 1: Capa -->
+  <section class="slide active title-slide" data-index="0">
+    <header>
+      <div class="title">🌐 Sistemas Distribuídos</div>
+    </header>
+    <div class="content">
+      <h1 class="main-title">Service Discovery</h1>
+      <p class="subtitle-desc">A Lista Telefônica Inteligente dos Microsserviços Modernos</p>
+
+      <div class="team-grid">
+        <div class="team-card">
+          <strong>Lucas Veríssimo de Oliveira</strong>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px;">
+        <p style="font-size: calc(var(--font-size) * 0.7); color: var(--muted);">
+          Orientador: Prof. Allysson Costa e Silva
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2: O Problema -->
+  <section class="slide" data-index="1">
+    <header><div class="title">🤔 O Problema</div></header>
+    <div class="content">
+      <h2>Por que precisamos de Service Discovery?</h2>
+      <ul>
+        <li><strong>Sistemas antigos:</strong> Aplicações monolíticas em um único servidor com endereço fixo</li>
+        <li><strong>Sistemas modernos:</strong> Centenas de microsserviços distribuídos em múltiplos servidores</li>
+        <li><strong>Desafio:</strong> Serviços constantemente iniciam, param, escalam e mudam de endereço</li>
+        <li><strong>Pergunta:</strong> Como um serviço encontra e se comunica com outro de forma dinâmica?</li>
+      </ul>
+      
+      <div class="example-card">
+        <h3>🎵 Exemplo: Spotify</h3>
+        <p>• <strong>Serviço de Música</strong> precisa falar com <strong>Serviço de Pagamento</strong></p>
+        <p>• <strong>Serviço de Recomendação</strong> precisa dos dados do <strong>Serviço de Usuários</strong></p>
+        <p>• <strong>Problema:</strong> Esses serviços podem estar em qualquer máquina e mudar a qualquer momento!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: O que é Service Discovery -->
+  <section class="slide" data-index="2">
+    <header><div class="title">💡 O que é Service Discovery?</div></header>
+    <div class="content">
+      <h2>Definição</h2>
+      <ul>
+        <li>Mecanismo que permite serviços <strong>encontrarem e se comunicarem automaticamente</strong></li>
+        <li>Funciona como uma <strong>"lista telefônica dinâmica"</strong> para microsserviços</li>
+        <li>Mantém registro atualizado de <strong>onde cada serviço está rodando</strong></li>
+        <li>Abstrai a complexidade de localização em ambientes cloud dinâmicos</li>
+      </ul>
+
+      <div style="text-align:center; margin-top:30px">
+        <div class="service-node">🎵 Music Service<br>192.168.1.10:8080</div>
+        <span style="font-size:32px; color:var(--accent4)">➜</span>
+        <div class="registry-node">📋 Service Registry<br>(Lista Telefônica)</div>
+        <span style="font-size:32px; color:var(--accent4)">➜</span>
+        <div class="service-node">💳 Payment Service<br>192.168.1.15:8081</div>
+      </div>
+
+      <div class="note">
+        <strong>Analogia:</strong> Imagine procurar o telefone de um amigo. Antigamente você decorava o número. Hoje você busca na agenda do celular, que atualiza automaticamente!
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Service Registry -->
+  <section class="slide" data-index="3">
+    <header><div class="title">📋 Service Registry</div></header>
+    <div class="content">
+      <h2>O Catálogo Central</h2>
+      <ul>
+        <li>Banco de dados centralizado que armazena <strong>informações de todos os serviços</strong></li>
+        <li><strong>Registra:</strong> Nome do serviço, endereço IP, porta, estado de saúde, metadados</li>
+        <li><strong>Atualiza:</strong> Informações em tempo real conforme serviços entram/saem</li>
+        <li><strong>Consulta:</strong> Permite que serviços busquem informações de outros serviços</li>
+      </ul>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Campo</th>
+          <th>Exemplo</th>
+          <th>Descrição</th>
+        </tr>
+        <tr>
+          <td><strong>Nome</strong></td>
+          <td>payment-service</td>
+          <td>Identificador único</td>
+        </tr>
+        <tr>
+          <td><strong>Endereço</strong></td>
+          <td>192.168.1.15:8081</td>
+          <td>Localização na rede</td>
+        </tr>
+        <tr>
+          <td><strong>Status</strong></td>
+          <td><span class="status-indicator status-healthy"></span>Saudável</td>
+          <td>Estado de funcionamento</td>
+        </tr>
+        <tr>
+          <td><strong>Metadados</strong></td>
+          <td>version: v2.1, region: us-east</td>
+          <td>Informações adicionais</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- Slide 5: Como Funciona -->
+  <section class="slide" data-index="4">
+    <header><div class="title">⚙️ Como Funciona?</div></header>
+    <div class="content">
+      <h2>Fluxo de Operação</h2>
+      <ul>
+        <li><strong>1. Registro:</strong> Quando um serviço inicia, ele se registra no Service Registry</li>
+        <li><strong>2. Heartbeat:</strong> Serviço envia "sinais de vida" periódicos (ex: a cada 30s)</li>
+        <li><strong>3. Consulta:</strong> Quando precisa falar com outro serviço, consulta o Registry</li>
+        <li><strong>4. Comunicação:</strong> Usa as informações obtidas para estabelecer conexão</li>
+        <li><strong>5. Desregistro:</strong> Ao parar, serviço remove-se ou Registry detecta ausência</li>
+      </ul>
+
+      <div class="example-card">
+        <h3>🔄 Exemplo de Heartbeat</h3>
+        <p><span class="status-indicator status-healthy"></span><strong>00:00</strong> - Serviço registrado</p>
+        <p><span class="status-indicator status-healthy"></span><strong>00:30</strong> - Heartbeat recebido ✓</p>
+        <p><span class="status-indicator status-healthy"></span><strong>01:00</strong> - Heartbeat recebido ✓</p>
+        <p><span class="status-indicator status-unhealthy"></span><strong>01:30</strong> - Heartbeat não recebido ✗</p>
+        <p><span class="status-indicator status-unhealthy"></span><strong>02:00</strong> - Serviço marcado como indisponível</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Client-Side vs Server-Side -->
+  <section class="slide" data-index="5">
+    <header><div class="title">🔀 Tipos de Service Discovery</div></header>
+    <div class="content">
+      <div style="display:flex; gap:24px; margin-bottom:20px">
+        <div style="flex:1">
+          <h2 style="color:var(--accent1)">👤 Client-Side</h2>
+          <ul style="font-size:calc(var(--font-size) * 0.65)">
+            <li>Cliente consulta o Registry diretamente</li>
+            <li>Cliente escolhe qual instância usar</li>
+            <li>Conexão direta ao serviço</li>
+            <li><strong>Exemplo:</strong> Netflix Eureka</li>
+          </ul>
+          <div class="note">
+            <strong>✅ Vantagem:</strong> Menor latência<br>
+            <strong>⚠️ Desafio:</strong> Cliente mais complexo
+          </div>
+        </div>
+        
+        <div style="flex:1">
+          <h2 style="color:var(--accent2)">🖥️ Server-Side</h2>
+          <ul style="font-size:calc(var(--font-size) * 0.65)">
+            <li>Cliente envia requisição ao Load Balancer</li>
+            <li>Load Balancer consulta o Registry</li>
+            <li>Load Balancer roteia a requisição</li>
+            <li><strong>Exemplo:</strong> AWS ELB, Kubernetes</li>
+          </ul>
+          <div class="note">
+            <strong>✅ Vantagem:</strong> Cliente mais simples<br>
+            <strong>⚠️ Desafio:</strong> Hop adicional (latência)
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-panel" style="margin-top:10px">
+        <div style="flex:1">
+          <canvas id="discoveryTypesCanvas" width="700" height="280"></canvas>
+        </div>
+        
+        <aside class="controls">
+          <div style="margin-bottom:16px"><strong>🎯 Demonstração</strong></div>
+          
+          <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap">
+            <button id="btnClientSide" class="active">👤 Client-Side</button>
+            <button id="btnServerSide">🖥️ Server-Side</button>
+          </div>
+
+          <button id="sendDiscoveryRequest" style="width:100%; margin-bottom:12px">📤 Enviar Requisição</button>
+
+          <div class="note" style="margin-top:16px; font-size:calc(var(--font-size) * 0.55)">
+            <strong>📊 Observações:</strong><br>
+            <span id="discoveryInfo">Clique em Client-Side ou Server-Side para ver a diferença no fluxo</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Demonstração Interativa 1 -->
+  <section class="slide" data-index="6">
+    <header><div class="title">🎮 Demonstração: Service Registration</div></header>
+    <div class="content">
+      <div class="demo-panel">
+        <div style="flex:1">
+          <canvas id="registryCanvas" width="700" height="500"></canvas>
+        </div>
+
+        <aside class="controls">
+          <div style="margin-bottom:16px"><strong>🎯 Controles</strong></div>
+          
+          <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap">
+            <button id="addService">➕ Adicionar Serviço</button>
+            <button id="removeService">➖ Remover Serviço</button>
+            <button id="failService">💥 Falhar Serviço</button>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <label>⏱️ Intervalo Heartbeat (ms)</label>
+            <input id="heartbeatRange" type="range" min="500" max="3000" value="1000" step="100">
+            <span id="heartbeatValue">1000</span>
+          </div>
+
+          <button id="resetDemo1" style="width:100%; background:rgba(239,68,68,0.8)">🔄 Resetar</button>
+
+          <div class="note" style="margin-top:16px">
+            <strong>📊 Legenda:</strong><br>
+            🟢 Serviço saudável<br>
+            🟡 Aguardando heartbeat<br>
+            🔴 Serviço falhou<br>
+            📋 Service Registry<br><br>
+            <strong>Estatísticas:</strong><br>
+            <span id="statsServices">Serviços: 0</span><br>
+            <span id="statsHealthy">Saudáveis: 0</span><br>
+            <span id="statsUnhealthy">Falhos: 0</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Exemplos no Mundo Real -->
+  <section class="slide" data-index="7">
+    <header><div class="title">🌍 Exemplos no Mundo Real</div></header>
+    <div class="content">
+      <div class="example-card">
+        <h3>🎬 Netflix</h3>
+        <p><strong>Escala:</strong> 700+ microsserviços</p>
+        <p><strong>Ferramenta:</strong> Eureka (desenvolvido pela própria Netflix)</p>
+        <p><strong>Uso:</strong> Permite que serviços de streaming, recomendação, billing e outros se encontrem dinamicamente em centenas de servidores</p>
+      </div>
+
+      <div class="example-card">
+        <h3>🚗 Uber</h3>
+        <p><strong>Escala:</strong> 2000+ microsserviços</p>
+        <p><strong>Ferramentas:</strong> Consul + Envoy</p>
+        <p><strong>Uso:</strong> Coordena serviços de localização, pagamento, notificações, matching motorista-passageiro em tempo real</p>
+      </div>
+
+      <div class="example-card">
+        <h3>☁️ AWS / Kubernetes</h3>
+        <p><strong>AWS:</strong> Cloud Map + ELB para service discovery nativo</p>
+        <p><strong>Kubernetes:</strong> DNS interno + Service objects para descoberta automática</p>
+        <p><strong>Uso:</strong> Infraestrutura gerenciada para milhares de empresas globalmente</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Demonstração Interativa 2 -->
+  <section class="slide" data-index="8">
+    <header><div class="title">🎮 Demonstração: Load Balancing</div></header>
+    <div class="content">
+      <div class="demo-panel">
+        <div style="flex:1">
+          <canvas id="loadBalancerCanvas" width="700" height="500"></canvas>
+        </div>
+
+        <aside class="controls">
+          <div style="margin-bottom:16px"><strong>🎯 Controles</strong></div>
+          
+          <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap">
+            <button id="sendRequest">📤 Enviar Requisição</button>
+            <button id="burstRequests">💥 Rajada (10x)</button>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <label>⚖️ Estratégia de Balanceamento</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
+              <button id="strategyRoundRobin" class="active" style="font-size:calc(var(--font-size) * 0.5); padding:8px 12px">Round Robin</button>
+              <button id="strategyRandom" style="font-size:calc(var(--font-size) * 0.5); padding:8px 12px">Aleatório</button>
+              <button id="strategyLeastConn" style="font-size:calc(var(--font-size) * 0.5); padding:8px 12px">Menos Ocupado</button>
+            </div>
+          </div>
+
+          <button id="resetDemo2" style="width:100%; background:rgba(239,68,68,0.8)">🔄 Resetar</button>
+
+          <div class="note" style="margin-top:16px">
+            <strong>📊 Estatísticas:</strong><br>
+            <span id="lbStatsTotal">Total Requisições: 0</span><br>
+            <span id="lbStatsSuccess">Bem-sucedidas: 0</span><br>
+            <span id="lbStatsFailed">Falhadas: 0</span><br>
+            <br>
+            <strong>Distribuição:</strong><br>
+            <span id="lbDistribution">-</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Vantagens e Desafios -->
+  <section class="slide" data-index="9">
+    <header><div class="title">⚖️ Vantagens e Desafios</div></header>
+    <div class="content two-column">
+      <div class="col">
+        <h2 style="color:var(--accent3)">✅ Vantagens</h2>
+        <ul class="advantage">
+          <li>Elimina configuração manual de endereços</li>
+          <li>Escala automaticamente com a aplicação</li>
+          <li>Tolerância a falhas com health checks</li>
+          <li>Deploy sem downtime (rolling updates)</li>
+          <li>Balanceamento de carga inteligente</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h2 style="color:var(--accent5)">⚠️ Desafios</h2>
+        <ul class="limitation">
+          <li>Registry pode ser ponto único de falha</li>
+          <li>Consistência eventual em updates</li>
+          <li>Latência adicional nas consultas</li>
+          <li>Complexidade de configuração inicial</li>
+          <li>Necessidade de monitoramento constante</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="pager">
+    <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+  </div>
+
+  <script>
+    // Navegação entre slides
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    
+    // Atualizar contador de slides
+    document.getElementById('totalSlides').textContent = totalSlides;
+    document.getElementById('currentSlide').textContent = currentSlide + 1;
+    
+    // Função para mostrar slide específico
+    function showSlide(index) {
+      // Validar índice
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      
+      // Esconder todos os slides
+      slides.forEach(slide => slide.classList.remove('active'));
+      
+      // Mostrar slide atual
+      slides[index].classList.add('active');
+      currentSlide = index;
+      
+      // Atualizar contador
+      document.getElementById('currentSlide').textContent = currentSlide + 1;
+      
+      // Inicializar demonstrações quando os slides forem exibidos
+      if (index === 5) initDemo3(); // Client-Side vs Server-Side
+      if (index === 6) initDemo1(); // Service Registration
+      if (index === 8) initDemo2(); // Load Balancing
+    }
+    
+    // Navegação por teclado
+    document.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          showSlide(currentSlide + 1);
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          showSlide(currentSlide - 1);
+          break;
+        case 'Home':
+          showSlide(0);
+          break;
+        case 'End':
+          showSlide(totalSlides - 1);
+          break;
+      }
+    });
+    
+    // Inicializar
+    showSlide(0);
+
+    // ========================================
+    // DEMONSTRAÇÃO 1: SERVICE REGISTRATION
+    // ========================================
+    let demo1Initialized = false;
+    let services = [];
+    let registry = { x: 350, y: 50, size: 60 };
+    let heartbeatInterval = 1000;
+    let serviceIdCounter = 1;
+    let animationFrame1;
+
+    function initDemo1() {
+      if (demo1Initialized) return;
+      demo1Initialized = true;
+
+      const canvas = document.getElementById('registryCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Adicionar alguns serviços iniciais
+      addService();
+      addService();
+      addService();
+
+      // Event listeners
+      document.getElementById('addService').addEventListener('click', addService);
+      document.getElementById('removeService').addEventListener('click', removeService);
+      document.getElementById('failService').addEventListener('click', failRandomService);
+      document.getElementById('resetDemo1').addEventListener('click', resetDemo1);
+      
+      const heartbeatRange = document.getElementById('heartbeatRange');
+      heartbeatRange.addEventListener('input', (e) => {
+        heartbeatInterval = parseInt(e.target.value);
+        document.getElementById('heartbeatValue').textContent = heartbeatInterval;
+      });
+
+      // Loop de animação
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Desenhar registry
+        drawRegistry(ctx);
+        
+        // Atualizar e desenhar serviços
+        services.forEach(service => {
+          updateService(service);
+          drawService(ctx, service);
+          
+          // Desenhar linha de conexão
+          if (service.sendingHeartbeat) {
+            drawHeartbeatLine(ctx, service);
+          }
+        });
+        
+        updateStats();
+        animationFrame1 = requestAnimationFrame(animate);
+      }
+      
+      animate();
+    }
+
+    function addService() {
+      const x = 100 + Math.random() * 500;
+      const y = 200 + Math.random() * 250;
+      
+      services.push({
+        id: serviceIdCounter++,
+        x, y,
+        status: 'healthy',
+        lastHeartbeat: Date.now(),
+        nextHeartbeat: Date.now() + heartbeatInterval,
+        sendingHeartbeat: false,
+        heartbeatProgress: 0
+      });
+    }
+
+    function removeService() {
+      if (services.length > 0) {
+        services.pop();
+      }
+    }
+
+    function failRandomService() {
+      if (services.length > 0) {
+        const service = services[Math.floor(Math.random() * services.length)];
+        service.status = 'failed';
+      }
+    }
+
+    function resetDemo1() {
+      services = [];
+      serviceIdCounter = 1;
+      addService();
+      addService();
+      addService();
+    }
+
+    function updateService(service) {
+      if (service.status === 'failed') return;
+      
+      const now = Date.now();
+      
+      if (service.sendingHeartbeat) {
+        service.heartbeatProgress += 0.05;
+        if (service.heartbeatProgress >= 1) {
+          service.sendingHeartbeat = false;
+          service.heartbeatProgress = 0;
+          service.lastHeartbeat = now;
+          service.nextHeartbeat = now + heartbeatInterval;
+          service.status = 'healthy';
+        }
+      } else if (now >= service.nextHeartbeat) {
+        service.sendingHeartbeat = true;
+        service.heartbeatProgress = 0;
+        service.status = 'waiting'; // Marca como aguardando ao enviar heartbeat
+      }
+      
+      // Checar se está próximo do próximo heartbeat (dentro de 30% do intervalo)
+      const timeSinceLastHeartbeat = now - service.lastHeartbeat;
+      const timeToNextHeartbeat = service.nextHeartbeat - now;
+      
+      if (!service.sendingHeartbeat && timeToNextHeartbeat < heartbeatInterval * 0.3 && timeToNextHeartbeat > 0) {
+        service.status = 'waiting'; // Aguardando próximo heartbeat
+      } else if (!service.sendingHeartbeat && service.status !== 'failed') {
+        service.status = 'healthy';
+      }
+      
+      // Checar timeout - se passou muito tempo sem heartbeat
+      if (timeSinceLastHeartbeat > heartbeatInterval * 2.5) {
+        service.status = 'timeout';
+      }
+    }
+
+    function drawRegistry(ctx) {
+      ctx.fillStyle = '#3b82f6';
+      ctx.strokeStyle = '#60a5fa';
+      ctx.lineWidth = 3;
+      
+      ctx.beginPath();
+      ctx.rect(registry.x - registry.size/2, registry.y - registry.size/2, 
+               registry.size, registry.size);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('📋 Registry', registry.x, registry.y + 5);
+    }
+
+    function drawService(ctx, service) {
+      const colors = {
+        healthy: '#10b981',
+        waiting: '#f59e0b',
+        timeout: '#ef4444',
+        failed: '#ef4444'
+      };
+      
+      ctx.fillStyle = colors[service.status];
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      
+      ctx.beginPath();
+      ctx.arc(service.x, service.y, 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`S${service.id}`, service.x, service.y + 4);
+    }
+
+    function drawHeartbeatLine(ctx, service) {
+      const progress = service.heartbeatProgress;
+      const currentX = service.x + (registry.x - service.x) * progress;
+      const currentY = service.y + (registry.y - service.y) * progress;
+      
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      
+      ctx.beginPath();
+      ctx.moveTo(service.x, service.y);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      
+      ctx.setLineDash([]);
+      
+      // Desenhar pulso
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function updateStats() {
+      const healthy = services.filter(s => s.status === 'healthy').length;
+      const waiting = services.filter(s => s.status === 'waiting').length;
+      const unhealthy = services.filter(s => s.status === 'timeout' || s.status === 'failed').length;
+      
+      document.getElementById('statsServices').textContent = `Serviços: ${services.length}`;
+      document.getElementById('statsHealthy').textContent = `Saudáveis: ${healthy}`;
+      document.getElementById('statsUnhealthy').textContent = `Falhos: ${unhealthy} | Aguardando: ${waiting}`;
+    }
+
+    // ========================================
+    // DEMONSTRAÇÃO 2: LOAD BALANCING
+    // ========================================
+    let demo2Initialized = false;
+    let lbServers = [];
+    let lbRequests = [];
+    let lbStats = { total: 0, success: 0, failed: 0 };
+    let lbStrategy = 'roundrobin';
+    let roundRobinIndex = 0;
+    let lbAnimationFrame;
+
+    function initDemo2() {
+      if (demo2Initialized) return;
+      demo2Initialized = true;
+
+      const canvas = document.getElementById('loadBalancerCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Criar servidores
+      for (let i = 0; i < 4; i++) {
+        lbServers.push({
+          id: i + 1,
+          x: 150 + (i * 150),
+          y: 350,
+          requests: 0,
+          active: Math.random() > 0.2 // 80% chance de estar ativo
+        });
+      }
+
+      // Event listeners
+      document.getElementById('sendRequest').addEventListener('click', () => sendRequest(1));
+      document.getElementById('burstRequests').addEventListener('click', () => sendRequest(10));
+      document.getElementById('resetDemo2').addEventListener('click', resetDemo2);
+      
+      document.getElementById('strategyRoundRobin').addEventListener('click', () => {
+        setStrategy('roundrobin');
+      });
+      document.getElementById('strategyRandom').addEventListener('click', () => {
+        setStrategy('random');
+      });
+      document.getElementById('strategyLeastConn').addEventListener('click', () => {
+        setStrategy('leastconn');
+      });
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Desenhar load balancer
+        drawLoadBalancer(ctx);
+        
+        // Desenhar servidores
+        lbServers.forEach(server => drawServer(ctx, server));
+        
+        // Atualizar e desenhar requisições
+        lbRequests = lbRequests.filter(req => {
+          updateRequest(req);
+          drawRequest(ctx, req);
+          return req.progress < 1;
+        });
+        
+        updateLBStats();
+        lbAnimationFrame = requestAnimationFrame(animate);
+      }
+      
+      animate();
+    }
+
+    function sendRequest(count) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const server = selectServer();
+          if (server) {
+            lbRequests.push({
+              startX: 350,
+              startY: 100,
+              endX: server.x,
+              endY: server.y,
+              progress: 0,
+              server: server,
+              success: server.active
+            });
+            
+            lbStats.total++;
+            if (server.active) {
+              lbStats.success++;
+              server.requests++;
+            } else {
+              lbStats.failed++;
+            }
+          }
+        }, i * 100);
+      }
+    }
+
+    function selectServer() {
+      const activeServers = lbServers.filter(s => s.active);
+      if (activeServers.length === 0) return lbServers[0];
+      
+      switch(lbStrategy) {
+        case 'roundrobin':
+          const server = activeServers[roundRobinIndex % activeServers.length];
+          roundRobinIndex++;
+          return server;
+          
+        case 'random':
+          return activeServers[Math.floor(Math.random() * activeServers.length)];
+          
+        case 'leastconn':
+          return activeServers.reduce((min, s) => 
+            s.requests < min.requests ? s : min
+          );
+          
+        default:
+          return activeServers[0];
+      }
+    }
+
+    function setStrategy(strategy) {
+      lbStrategy = strategy;
+      document.querySelectorAll('[id^="strategy"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`strategy${strategy.charAt(0).toUpperCase() + strategy.slice(1)}`).classList.add('active');
+    }
+
+    function resetDemo2() {
+      lbRequests = [];
+      lbStats = { total: 0, success: 0, failed: 0 };
+      roundRobinIndex = 0;
+      lbServers.forEach(server => {
+        server.requests = 0;
+        server.active = Math.random() > 0.2;
+      });
+    }
+
+    function drawLoadBalancer(ctx) {
+      ctx.fillStyle = '#8b5cf6';
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 3;
+      
+      ctx.beginPath();
+      ctx.rect(300, 50, 100, 100);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚖️ Load', 350, 90);
+      ctx.fillText('Balancer', 350, 110);
+    }
+
+    function drawServer(ctx, server) {
+      ctx.fillStyle = server.active ? '#10b981' : '#ef4444';
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      
+      ctx.beginPath();
+      ctx.rect(server.x - 40, server.y - 40, 80, 80);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Server ${server.id}`, server.x, server.y - 5);
+      ctx.font = '12px Arial';
+      ctx.fillText(`${server.requests} req`, server.x, server.y + 15);
+    }
+
+    function updateRequest(req) {
+      req.progress += 0.03;
+    }
+
+    function drawRequest(ctx, req) {
+      const x = req.startX + (req.endX - req.startX) * req.progress;
+      const y = req.startY + (req.endY - req.startY) * req.progress;
+      
+      ctx.fillStyle = req.success ? '#10b981' : '#ef4444';
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Linha
+      ctx.strokeStyle = req.success ? '#10b981' : '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(req.startX, req.startY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function updateLBStats() {
+      document.getElementById('lbStatsTotal').textContent = `Total Requisições: ${lbStats.total}`;
+      document.getElementById('lbStatsSuccess').textContent = `Bem-sucedidas: ${lbStats.success}`;
+      document.getElementById('lbStatsFailed').textContent = `Falhadas: ${lbStats.failed}`;
+      
+      const dist = lbServers.map(s => `S${s.id}: ${s.requests}`).join(' | ');
+      document.getElementById('lbDistribution').textContent = dist;
+    }
+
+    // ========================================
+    // DEMONSTRAÇÃO 3: CLIENT-SIDE vs SERVER-SIDE DISCOVERY
+    // ========================================
+    let demo3Initialized = false;
+    let discoveryMode = 'client'; // 'client' ou 'server'
+    let discoveryAnimations = [];
+    let discoveryAnimationFrame;
+
+    function initDemo3() {
+      if (demo3Initialized) return;
+      demo3Initialized = true;
+
+      const canvas = document.getElementById('discoveryTypesCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Event listeners
+      document.getElementById('btnClientSide').addEventListener('click', () => {
+        setDiscoveryMode('client');
+      });
+      document.getElementById('btnServerSide').addEventListener('click', () => {
+        setDiscoveryMode('server');
+      });
+      document.getElementById('sendDiscoveryRequest').addEventListener('click', () => {
+        sendDiscoveryRequest();
+      });
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (discoveryMode === 'client') {
+          drawClientSideArchitecture(ctx);
+        } else {
+          drawServerSideArchitecture(ctx);
+        }
+        
+        // Atualizar e desenhar animações
+        discoveryAnimations = discoveryAnimations.filter(anim => {
+          updateDiscoveryAnimation(anim);
+          drawDiscoveryAnimation(ctx, anim);
+          return anim.progress < 1;
+        });
+        
+        discoveryAnimationFrame = requestAnimationFrame(animate);
+      }
+      
+      animate();
+    }
+
+    function setDiscoveryMode(mode) {
+      discoveryMode = mode;
+      discoveryAnimations = [];
+      
+      document.getElementById('btnClientSide').classList.toggle('active', mode === 'client');
+      document.getElementById('btnServerSide').classList.toggle('active', mode === 'server');
+      
+      if (mode === 'client') {
+        document.getElementById('discoveryInfo').textContent = 
+          'Client-Side: Cliente consulta Registry → Escolhe serviço → Conecta diretamente';
+      } else {
+        document.getElementById('discoveryInfo').textContent = 
+          'Server-Side: Cliente → Load Balancer → Registry → Serviço';
+      }
+    }
+
+    function sendDiscoveryRequest() {
+      if (discoveryMode === 'client') {
+        // Animação Client-Side: Client -> Registry -> Service
+        discoveryAnimations.push({
+          type: 'client-to-registry',
+          startX: 100, startY: 140,
+          endX: 350, endY: 140,
+          progress: 0,
+          color: '#3b82f6'
+        });
+        
+        setTimeout(() => {
+          discoveryAnimations.push({
+            type: 'client-to-service',
+            startX: 100, startY: 170, // Linha de baixo (offset 30)
+            endX: 600, endY: 170,      // Linha de baixo (offset 30)
+            progress: 0,
+            color: '#10b981'
+          });
+        }, 500);
+      } else {
+        // Animação Server-Side: Client -> LB -> Registry -> LB -> Service
+        discoveryAnimations.push({
+          type: 'client-to-lb',
+          startX: 100, startY: 140,
+          endX: 250, endY: 140,
+          progress: 0,
+          color: '#3b82f6'
+        });
+        
+        setTimeout(() => {
+          discoveryAnimations.push({
+            type: 'lb-to-registry',
+            startX: 250, startY: 140,
+            endX: 400, endY: 140,
+            progress: 0,
+            color: '#8b5cf6'
+          });
+        }, 300);
+        
+        setTimeout(() => {
+          discoveryAnimations.push({
+            type: 'lb-to-service',
+            startX: 250, startY: 170, // Linha de baixo (offset 30)
+            endX: 600, endY: 170,      // Linha de baixo (offset 30)
+            progress: 0,
+            color: '#10b981'
+          });
+        }, 600);
+      }
+    }
+
+    function drawClientSideArchitecture(ctx) {
+      // Cliente
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(50, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('👤 Cliente', 100, 145);
+      
+      // Registry
+      ctx.fillStyle = '#8b5cf6';
+      ctx.fillRect(300, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.fillText('📋 Registry', 350, 145);
+      
+      // Serviço
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(550, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.fillText('🎯 Serviço', 600, 145);
+      
+      // Setas estáticas
+      drawArrow(ctx, 150, 140, 300, 140, '#94a3b8', '1. Consulta');
+      drawArrow(ctx, 150, 140, 550, 140, '#94a3b8', '2. Conecta', 30);
+    }
+
+    function drawServerSideArchitecture(ctx) {
+      // Cliente
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(50, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('👤 Cliente', 100, 145);
+      
+      // Load Balancer
+      ctx.fillStyle = '#8b5cf6';
+      ctx.fillRect(200, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.fillText('⚖️ LB', 250, 145);
+      
+      // Registry
+      ctx.fillStyle = '#a78bfa';
+      ctx.fillRect(350, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.fillText('📋 Registry', 400, 145);
+      
+      // Serviço
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(550, 110, 100, 60);
+      ctx.fillStyle = 'white';
+      ctx.fillText('🎯 Serviço', 600, 145);
+      
+      // Setas estáticas
+      drawArrow(ctx, 150, 140, 200, 140, '#94a3b8', '1. Request');
+      drawArrow(ctx, 300, 140, 350, 140, '#94a3b8', '2. Consulta');
+      drawArrow(ctx, 300, 140, 550, 140, '#94a3b8', '3. Route', 30);
+    }
+
+    function drawArrow(ctx, x1, y1, x2, y2, color, label, offset = 0) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      
+      ctx.beginPath();
+      ctx.moveTo(x1, y1 + offset);
+      ctx.lineTo(x2, y2 + offset);
+      ctx.stroke();
+      
+      ctx.setLineDash([]);
+      
+      // Label
+      if (label) {
+        ctx.fillStyle = color;
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, (x1 + x2) / 2, y1 + offset - 5);
+      }
+    }
+
+    function updateDiscoveryAnimation(anim) {
+      anim.progress += 0.02;
+    }
+
+    function drawDiscoveryAnimation(ctx, anim) {
+      const x = anim.startX + (anim.endX - anim.startX) * anim.progress;
+      const y = anim.startY + (anim.endY - anim.startY) * anim.progress;
+      
+      ctx.fillStyle = anim.color;
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Rastro
+      ctx.strokeStyle = anim.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(anim.startX, anim.startY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+  </script>
+</body>
+</html>
